@@ -1,0 +1,119 @@
+/* ---------- 1. Wall clock ---------- */
+const clock = document.getElementById("clock");
+const hourHand = document.getElementById("hourHand");
+const minuteHand = document.getElementById("minuteHand");
+const secondHand = document.getElementById("secondHand");
+const digital = document.getElementById("digital");
+
+// draw the 12 tick marks
+for (let i = 0; i < 12; i++) {
+  const tick = document.createElement("div");
+  tick.className = "tick" + (i % 3 === 0 ? " big" : "");
+  tick.style.transform = `translateX(-50%) rotate(${i * 30}deg)`;
+  clock.appendChild(tick);
+}
+
+function updateClock() {
+  const now = new Date();
+  const s = now.getSeconds();
+  const m = now.getMinutes();
+  const h = now.getHours() % 12;
+
+  const secDeg = s * 6;
+  const minDeg = m * 6 + s * 0.1;
+  const hourDeg = h * 30 + m * 0.5;
+
+  secondHand.style.transform = `translateX(-50%) rotate(${secDeg}deg)`;
+  minuteHand.style.transform = `translateX(-50%) rotate(${minDeg}deg)`;
+  hourHand.style.transform = `translateX(-50%) rotate(${hourDeg}deg)`;
+
+  digital.textContent = now.toLocaleTimeString();
+}
+updateClock();
+setInterval(updateClock, 1000);
+
+/* ---------- 2. Light bulb ---------- */
+const bulb = document.getElementById("bulb");
+const bulbBtn = document.getElementById("bulbBtn");
+
+function toggleBulb() {
+  const on = bulb.classList.toggle("on");
+  bulbBtn.textContent = on ? "Switch OFF" : "Switch ON";
+}
+bulb.addEventListener("click", toggleBulb);
+bulbBtn.addEventListener("click", toggleBulb);
+
+/* ---------- 3. Coffee cup ---------- */
+const coffee = document.getElementById("coffee");
+const steam = document.getElementById("steam");
+let level = 85; // percent
+
+function setLevel(value) {
+  level = Math.max(0, Math.min(85, value));
+  coffee.style.height = level + "%";
+  steam.style.opacity = level > 0 ? 1 : 0;
+}
+document.getElementById("sipBtn").addEventListener("click", () => setLevel(level - 17));
+document.getElementById("refillBtn").addEventListener("click", () => setLevel(85));
+
+/* ---------- 4. Traffic light ---------- */
+const lamps = {
+  red: document.getElementById("lampRed"),
+  yellow: document.getElementById("lampYellow"),
+  green: document.getElementById("lampGreen"),
+};
+const trafficText = document.getElementById("trafficText");
+const trafficBtn = document.getElementById("trafficBtn");
+
+const sequence = [
+  { color: "red",    time: 4000, text: "STOP" },
+  { color: "green",  time: 4000, text: "GO" },
+  { color: "yellow", time: 1500, text: "GET READY" },
+];
+let step = 0;
+let running = true;
+let timer = null;
+
+function showStep() {
+  const { color, text, time } = sequence[step];
+  Object.values(lamps).forEach(l => l.classList.remove("active"));
+  lamps[color].classList.add("active");
+  trafficText.textContent = text;
+  if (running) {
+    timer = setTimeout(() => {
+      step = (step + 1) % sequence.length;
+      showStep();
+    }, time);
+  }
+}
+
+trafficBtn.addEventListener("click", () => {
+  running = !running;
+  trafficBtn.textContent = running ? "Pause" : "Resume";
+  clearTimeout(timer);
+  if (running) showStep();
+  else trafficText.textContent += " (paused)";
+});
+showStep();
+
+/* ---------- 5. Door ---------- */
+const door = document.getElementById("door");
+const doorBtn = document.getElementById("doorBtn");
+
+function toggleDoor() {
+  const open = door.classList.toggle("open");
+  doorBtn.textContent = open ? "Close door" : "Open door";
+}
+door.addEventListener("click", toggleDoor);
+doorBtn.addEventListener("click", toggleDoor);
+
+/* ---------- 6. Table fan ---------- */
+const blades = document.getElementById("blades");
+document.querySelectorAll("[data-speed]").forEach(btn => {
+  btn.addEventListener("click", () => {
+    blades.classList.remove("low", "high");
+    const speed = btn.dataset.speed;
+    if (speed === "1") blades.classList.add("low");
+    if (speed === "2") blades.classList.add("high");
+  });
+});
